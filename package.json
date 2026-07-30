@@ -7,7 +7,9 @@
     "build": "next build",
     "postbuild": "next-sitemap",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "verify:seo": "node scripts/verify-seo.mjs",
+    "ci": "npm run build && npm run verify:seo"
   },
   "dependencies": {
     "next": "^16.2.12",

@@ -1,163 +1,240 @@
-'use client';
+import fs from "fs";
+import path from "path";
+import Link from "next/link";
+import type { Metadata } from "next";
 
-import { useParams } from 'next/navigation';
-import { LogoImage } from '@/components/LogoImage';
+type Servicio = {
+  servicio: string;
+  problema: string;
+  titulo?: string;
+  descripcion?: string;
+  beneficios?: string[];
+  keywords?: string[];
+};
 
-// ========== 1. COMPONENTE DE SCHEMA MARKUP ==========
-const SchemaMarkup = ({ servicio, zona, phone }: { servicio: string; zona: string; phone: string }) => {
-  const formatText = (text: string) => text.replace(/-/g, ' ');
+type Zona = {
+  slug_zona: string;
+  nombre_zona: string;
+  descripcion?: string;
+};
 
-  const schema = {
+const baseUrl = "https://portonesweb.vercel.app";
+const phone = "+54 11 6363-9909";
+const whatsappUrl = "https://wa.me/5491163639909";
+
+function normalizeText(value: string) {
+  return value.replace(/-/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function readJsonFile<T>(fileName: string): T {
+  const filePath = path.join(process.cwd(), "data", fileName);
+  return JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
+}
+
+async function getDatos() {
+  const servicios = readJsonFile<Servicio[]>("servicios.json");
+  const zonas = readJsonFile<Zona[]>("zonas.json");
+  return { servicios, zonas };
+}
+
+export async function generateStaticParams() {
+  const { servicios, zonas } = await getDatos();
+  return servicios.flatMap((servicio) => zonas.map((zona) => ({ servicio: servicio.servicio, zona: zona.slug_zona })));
+}
+
+export const dynamicParams = false;
+
+export async function generateMetadata({ params }: { params: Promise<{ servicio: string; zona: string }> }): Promise<Metadata> {
+  const { servicio, zona } = await params;
+  const { servicios, zonas } = await getDatos();
+  const servicioData = servicios.find((item) => item.servicio === servicio);
+  const zonaData = zonas.find((item) => item.slug_zona === zona);
+
+  const serviceTitle = servicioData?.titulo ?? normalizeText(servicioData?.servicio ?? servicio);
+  const areaTitle = zonaData?.nombre_zona ?? normalizeText(zona);
+  const title = `${serviceTitle} en ${areaTitle} | PRO-PORTONES`;
+  const description =
+    servicioData?.descripcion ??
+    `Servicio profesional de ${serviceTitle.toLowerCase()} en ${areaTitle}. Presupuesto gratis, atención rápida y garantía.`;
+  const canonical = `${baseUrl}/${servicio}/${zona}`;
+  const ogImage = `/og-${servicio}-${zona}.svg`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    keywords: [serviceTitle, areaTitle, "portones automáticos", "Buenos Aires", "presupuesto gratis"],
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      type: "article",
+      siteName: "PRO-PORTONES",
+      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
+    },
+    robots: { index: true, follow: true },
+  };
+}
+
+export default async function ServicePage({ params }: { params: Promise<{ servicio: string; zona: string }> }) {
+  const { servicio, zona } = await params;
+  const { servicios, zonas } = await getDatos();
+  const servicioData = servicios.find((item) => item.servicio === servicio);
+  const zonaData = zonas.find((item) => item.slug_zona === zona);
+
+  const serviceTitle = servicioData?.titulo ?? normalizeText(servicioData?.servicio ?? servicio);
+  const areaTitle = zonaData?.nombre_zona ?? normalizeText(zona);
+  const description =
+    servicioData?.descripcion ??
+    `Servicio profesional de ${serviceTitle.toLowerCase()} en ${areaTitle}. Presupuesto gratis, atención rápida y garantía.`;
+  const benefits = servicioData?.beneficios ?? [
+    "Atención rápida en urgencias",
+    "Técnicos certificados",
+    "Presupuesto gratis",
+    "Garantía en todos los trabajos",
+  ];
+  const faqs = [
+    {
+      question: `¿Cuánto cuesta ${serviceTitle.toLowerCase()} en ${areaTitle}?`,
+      answer: `El precio depende del tipo de portón y la complejidad del trabajo. En PRO-PORTONES hacemos una evaluación y te enviamos un presupuesto gratis sin compromiso.`,
+    },
+    {
+      question: `¿Atención ${serviceTitle.toLowerCase()} los fines de semana?`,
+      answer: `Sí. Atendemos durante todo el año, incluso fines de semana y feriados, para resolver urgencias de forma rápida.`,
+    },
+  ];
+
+  const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "Service",
-        "name": `${formatText(servicio)} en ${formatText(zona)}`,
-        "description": `Servicio profesional de ${formatText(servicio)} en ${formatText(zona)}. Presupuesto GRATIS. WhatsApp ${phone}.`,
-        "provider": {
+        name: `${serviceTitle} en ${areaTitle}`,
+        description,
+        provider: {
           "@type": "Organization",
-          "name": "Pro-Portones™",
-          "telephone": `+54${phone}`
+          name: "PRO-PORTONES",
+          telephone: phone,
+          url: baseUrl,
         },
-        "areaServed": [{ "@type": "City", "name": formatText(zona) }],
-        "offers": {
+        areaServed: areaTitle,
+        offers: {
           "@type": "Offer",
-          "url": `https://pro-portones.com/${servicio}/${zona}`,
-          "priceCurrency": "ARS",
-          "price": "0"
-        }
+          url: `${baseUrl}/${servicio}/${zona}`,
+          priceCurrency: "ARS",
+          price: "0",
+        },
       },
       {
         "@type": "LocalBusiness",
-        "name": "Pro-Portones™ - Servicio Técnico Móvil",
-        "telephone": `+54${phone}`,
-        "address": {
+        name: "PRO-PORTONES",
+        telephone: phone,
+        url: baseUrl,
+        areaServed: areaTitle,
+        address: {
           "@type": "PostalAddress",
-          "addressLocality": formatText(zona),
-          "addressRegion": "Buenos Aires",
-          "addressCountry": "AR"
+          addressRegion: "Buenos Aires",
+          addressCountry: "AR",
         },
-        "openingHoursSpecification": [{
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-          "opens": "00:00",
-          "closes": "23:59"
-        }]
-      }
-    ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Inicio", item: baseUrl },
+          { "@type": "ListItem", position: 2, name: serviceTitle, item: `${baseUrl}/${servicio}/${zona}` },
+        ],
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: faqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.answer,
+          },
+        })),
+      },
+    ],
   };
 
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-    />
-  );
-};
+    <main className="min-h-screen bg-slate-50 px-6 py-12 text-slate-800 md:px-10 lg:px-12">
+      <div className="mx-auto flex max-w-5xl flex-col gap-6">
+        <header className="rounded-3xl border border-yellow-400 bg-white p-8 shadow-xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#002366]">Servicio profesional</p>
+          <h1 className="mt-3 text-4xl font-black leading-tight text-[#002366] md:text-5xl">
+            {serviceTitle} en {areaTitle}
+          </h1>
+          <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-600">{description}</p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <a
+              href={`${whatsappUrl}?text=Hola%20necesito%20${encodeURIComponent(serviceTitle)}%20en%20${encodeURIComponent(areaTitle)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-full bg-[#FFD700] px-6 py-3 text-center font-semibold text-[#002366] transition hover:bg-yellow-500"
+            >
+              Solicitar presupuesto gratis
+            </a>
+            <a href={`tel:${phone.replace(/[^0-9+]/g, "")}`} className="rounded-full border border-[#002366] px-6 py-3 text-center font-semibold text-[#002366] transition hover:bg-slate-100">
+              Llamar al 11 6363-9909
+            </a>
+          </div>
+        </header>
 
-// ========== 2. FUNCIÓN PARA FORMATEAR TÍTULOS ==========
-const formatTitle = (text: string | undefined) => {
-  if (!text) return 'Servicio';
-  return text.replace(/-/g, ' ');
-};
+        <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg">
+            <h2 className="text-2xl font-bold text-[#002366]">¿Qué incluye este servicio?</h2>
+            <ul className="mt-5 space-y-3 text-base leading-7 text-slate-600">
+              {benefits.map((benefit) => (
+                <li key={benefit} className="rounded-xl bg-slate-50 p-3">
+                  • {benefit}
+                </li>
+              ))}
+            </ul>
+          </div>
 
-// ========== 3. ESTILOS CSS ==========
-const styles = {
-  container: {
-    minHeight: '100vh',
-    backgroundColor: '#f8f9fa',
-    padding: '2rem',
-    fontFamily: 'sans-serif',
-    display: 'flex',
-    flexDirection: 'column' as const,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    textAlign: 'center' as const,
-  },
-  title: {
-    color: '#2c3e50',
-    fontSize: '2.5rem',
-    marginBottom: '1.5rem',
-    fontWeight: 700,
-    textTransform: 'capitalize' as const,
-  },
-  description: {
-    color: '#34495e',
-    fontSize: '1.2rem',
-    marginBottom: '2rem',
-    maxWidth: '600px',
-    lineHeight: '1.6'
-  },
-  ctaButton: {
-    backgroundColor: '#2ecc71',
-    color: 'white',
-    border: 'none',
-    padding: '12px 24px',
-    fontSize: '1.1rem',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    transition: 'background-color 0.3s',
-    textDecoration: 'none',
-    display: 'inline-block',
-    marginTop: '1rem'
-  },
-  footerInfo: {
-    marginTop: '3rem',
-    color: '#7f8c8d',
-    fontSize: '0.9rem'
-  }
-};
+          <div className="rounded-3xl border border-slate-200 bg-[#002366] p-8 text-white shadow-lg">
+            <h2 className="text-2xl font-bold">Contactanos</h2>
+            <p className="mt-4 text-base leading-7 text-slate-100">
+              Atendemos urgencias y trabajos programados en toda la zona de Buenos Aires.
+            </p>
+            <div className="mt-6 space-y-3 text-sm text-slate-100">
+              <p>📞 {phone}</p>
+              <p>💬 WhatsApp {whatsappUrl.replace("https://wa.me/", "")}</p>
+            </div>
+          </div>
+        </section>
 
-// ========== 4. COMPONENTE PRINCIPAL ==========
-export default function ServicePage() {
-  const params = useParams();
-  const servicioParam = params?.servicio as string || 'servicio';
-  const zonaParam = params?.zona as string || 'zona';
+        <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg">
+          <h2 className="text-2xl font-bold text-[#002366]">Preguntas frecuentes</h2>
+          <div className="mt-5 space-y-4">
+            {faqs.map((faq) => (
+              <div key={faq.question} className="rounded-2xl border border-slate-200 p-4">
+                <h3 className="font-semibold text-[#002366]">{faq.question}</h3>
+                <p className="mt-2 text-sm leading-7 text-slate-600">{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
-  // Eliminamos "portones", "servicio de" o "servicio" que vengan desde la URL
-  const servicioLimpio = formatTitle(servicioParam)
-    .replace(/portones/gi, '')
-    .replace(/servicio\s+de/gi, '')
-    .replace(/servicio/gi, '')
-    .trim();
-
-  return (
-    <div style={styles.container}>
-      {/* Logo */}
-      <div style={{ marginBottom: '2rem' }}>
-        <LogoImage
-          src="/logo-pro-portones.png"
-          alt="Pro-Portones Logo"
-          style={{ maxWidth: '200px', height: 'auto' }}
-        />
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
+          <p className="text-sm text-slate-600">
+            Si necesitás más información, volvemos al inicio para ver todos los servicios y zonas.
+          </p>
+          <Link href="/" className="rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700">
+            Volver al inicio
+          </Link>
+        </div>
       </div>
 
-      {/* Título limpio: "Servicio de Reparación de Portones en Zona Norte" */}
-      <h1 style={styles.title}>
-        Servicio de {servicioLimpio} de Portones en {formatTitle(zonaParam)}
-      </h1>
-
-      {/* Descripción */}
-      <p style={styles.description}>
-        Presupuesto <strong>GRATIS</strong>. Nuestros técnicos certificados están disponibles las 24 horas para resolver cualquier problema con sus portones.
-      </p>
-
-      {/* Botón de WhatsApp */}
-      <a
-        href={`https://wa.me/541163639909?text=Hola,%20necesito%20${encodeURIComponent(formatTitle(servicioParam))}%20en%20${encodeURIComponent(formatTitle(zonaParam))}`}
-        style={styles.ctaButton}
-      >
-        Contáctanos por WhatsApp
-      </a>
-
-      {/* Información adicional */}
-      <div style={styles.footerInfo}>
-        <p>Atención inmediata en toda la zona de Buenos Aires</p>
-        <p>Teléfono: 11 6363-9909</p>
-      </div>
-
-      {/* Schema Markup */}
-      <SchemaMarkup servicio={servicioParam} zona={zonaParam} phone="1163639909" />
-    </div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+    </main>
   );
 }

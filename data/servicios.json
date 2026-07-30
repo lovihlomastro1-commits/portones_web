@@ -1,14 +1,41 @@
 [
   {
     "servicio": "reparacion-portones",
-    "problema": "Portones trabados o con ruidos extraÃ±os"
+    "problema": "Portones trabados o con ruidos extraños",
+    "titulo": "Reparación de portones automáticos",
+    "descripcion": "Reparación urgente de portones automáticos, seccionales, basculantes y corredizos en Buenos Aires. Soluciones rápidas, presupuesto gratis y garantía.",
+    "beneficios": [
+      "Reparación rápida de fallas mecánicas y eléctricas",
+      "Técnicos certificados y atención inmediata",
+      "Presupuesto gratis y sin compromiso",
+      "Garantía en todos los trabajos"
+    ],
+    "keywords": ["reparación portones", "portones automáticos", "Buenos Aires"]
   },
   {
     "servicio": "mantenimiento-portones",
-    "problema": "Servicio preventivo para evitar roturas"
+    "problema": "Servicio preventivo para evitar roturas",
+    "titulo": "Mantenimiento de portones",
+    "descripcion": "Mantenimiento preventivo para portones automáticos, con inspección, lubricación y revisión de motores para evitar averías costosas.",
+    "beneficios": [
+      "Mantenimiento preventivo profesional",
+      "Evita averías y alarga la vida útil del sistema",
+      "Revisión de seguridad y funcionamiento",
+      "Programación flexible según tus necesidades"
+    ],
+    "keywords": ["mantenimiento portones", "portones automáticos", "Buenos Aires"]
   },
   {
     "servicio": "instalacion-portones",
-    "problema": "InstalaciÃ³n de portones nuevos y motores"
+    "problema": "Instalación de portones nuevos y motores",
+    "titulo": "Instalación de portones automáticos",
+    "descripcion": "Instalación profesional de portones automáticos, motores y automatismos con asesoramiento y presupuesto sin compromiso.",
+    "beneficios": [
+      "Instalación profesional y rápida",
+      "Asesoramiento para elegir el mejor sistema",
+      "Automatización segura y confiable",
+      "Garantía en la instalación"
+    ],
+    "keywords": ["instalación portones", "portones automáticos", "Buenos Aires"]
   }
 ]

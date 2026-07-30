@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://portotones.online
+
+# Sitemaps
+Sitemap: https://portotones.online/sitemap.xml

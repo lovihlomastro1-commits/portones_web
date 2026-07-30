@@ -1,7 +1,7 @@
 [
-  { "nombre_zona": "Zona Norte", "slug_zona": "zona-norte" },
-  { "nombre_zona": "Zona Sur", "slug_zona": "zona-sur" },
-  { "nombre_zona": "Zona Este", "slug_zona": "zona-este" },
-  { "nombre_zona": "Zona Oeste", "slug_zona": "zona-oeste" },
-  { "nombre_zona": "Centro", "slug_zona": "centro" }
+  { "nombre_zona": "Zona Norte", "slug_zona": "zona-norte", "descripcion": "Atendemos urgencias y trabajos programados en la Zona Norte de Buenos Aires." },
+  { "nombre_zona": "Zona Sur", "slug_zona": "zona-sur", "descripcion": "Cobertura para la Zona Sur de Buenos Aires con servicio rápido y profesional." },
+  { "nombre_zona": "Zona Este", "slug_zona": "zona-este", "descripcion": "Reparación y mantenimiento de portones en la Zona Este de Buenos Aires." },
+  { "nombre_zona": "Zona Oeste", "slug_zona": "zona-oeste", "descripcion": "Servicio de portones automáticos en la Zona Oeste de Buenos Aires." },
+  { "nombre_zona": "Centro", "slug_zona": "centro", "descripcion": "Atención inmediata para clientes del Centro de Buenos Aires." }
 ]

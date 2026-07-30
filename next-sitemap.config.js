@@ -1,7 +1,8 @@
-/** @type {import('next-sitemap').IConfig} */
+﻿/** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: 'https://portonesweb.vercel.app',
+  siteUrl: 'https://portotones.online',
   generateRobotsTxt: true,
   changefreq: 'daily',
   priority: 0.7,
 };
+
