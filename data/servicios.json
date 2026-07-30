@@ -1,0 +1,14 @@
+[
+  {
+    "servicio": "reparacion-portones",
+    "problema": "Portones trabados o con ruidos extraños"
+  },
+  {
+    "servicio": "mantenimiento-portones",
+    "problema": "Servicio preventivo para evitar roturas"
+  },
+  {
+    "servicio": "instalacion-portones",
+    "problema": "Instalación de portones nuevos y motores"
+  }
+]

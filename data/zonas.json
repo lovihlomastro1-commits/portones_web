@@ -1,0 +1,7 @@
+[
+  { "nombre_zona": "Zona Norte", "slug_zona": "zona-norte" },
+  { "nombre_zona": "Zona Sur", "slug_zona": "zona-sur" },
+  { "nombre_zona": "Zona Este", "slug_zona": "zona-este" },
+  { "nombre_zona": "Zona Oeste", "slug_zona": "zona-oeste" },
+  { "nombre_zona": "Centro", "slug_zona": "centro" }
+]
